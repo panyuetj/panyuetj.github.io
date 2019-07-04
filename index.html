@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>算法工程师的修炼</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="算法工程师的修炼">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="算法工程师的修炼">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法工程师的修炼">
+  
+    <link rel="alternate" href="/atom.xml" title="算法工程师的修炼" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">算法工程师的修炼</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">大雄的博客</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-blog_002_image_retrieval" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/02/27/blog_002_image_retrieval/" class="article-date">
+  <time datetime="2019-02-27T15:33:02.000Z" itemprop="datePublished">2019-02-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/algorithm/">algorithm</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/27/blog_002_image_retrieval/">图像检索调研</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>图像检索大致可以分为两个不同的方向。</p>
+<p>一个方向是追求图像相似性的检索，在gallery中找相似或相同，商品检索、草图检索都属于这个范畴，侧重点在于检索相同分类的图片，可以称作class-level retrieval。</p>
+<p>另一个方向是对图像内容的检索，图像中包含的物体、场景、结构可能存在视角、光照、遮挡等问题，侧重点在于对图像内容的匹配，可以称作instance-level retrieval，或CBIR（Content Based Image Retrieval）。</p>
+<p>以下内容主要针对CBIR</p>
+<h2 id="instance-level"><a href="#instance-level" class="headerlink" title="instance-level"></a>instance-level</h2><p>CBIR方向一篇综述<a href="https://arxiv.org/abs/1608.01807" target="_blank" rel="noopener">SIFT Meets CNN: A Decade Survey of Instance Retrieval</a>，详细介绍了instance retrieval的十年发展历程。</p>
+<p>两大类方法，基于SIFT的方法和随后兴起的基于CNN方法，然而SIFT的方法并没有过时，在特定任务上仍然有优势。</p>
+<table>
+<thead>
+<tr>
+<th>method type</th>
+<th>detector</th>
+<th>descriptor</th>
+<th>encoding</th>
+<th>dim</th>
+<th>indexing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIFT-Large voc.</td>
+<td>DoG, Hessian-Affine, etc.</td>
+<td>SIFT</td>
+<td>Hard, soft</td>
+<td>High</td>
+<td>Inverted index</td>
+</tr>
+<tr>
+<td>SIFT-Mid voc.</td>
+<td>DoG, Hessian-Affine, etc.</td>
+<td>SIFT</td>
+<td>Hard, soft, HE</td>
+<td>Medium</td>
+<td>Inverted index</td>
+</tr>
+<tr>
+<td>SIFT-Small voc.</td>
+<td>DoG, Hessian-Affine,  etc</td>
+<td>SIFT</td>
+<td>VLAD, Fisher Vector</td>
+<td>Low</td>
+<td>ANN methods</td>
+</tr>
+<tr>
+<td>CNN Hybrid</td>
+<td>Image patches</td>
+<td>CNN features</td>
+<td>VLAD, Fisher Vector, pooling</td>
+<td>Varies</td>
+<td>ANN methods</td>
+</tr>
+<tr>
+<td>CNN Pre-trained</td>
+<td>column feature、FC</td>
+<td>column feature、FC</td>
+<td>VLAD, Fisher Vector, pooling</td>
+<td>Low</td>
+<td>ANN methods</td>
+</tr>
+<tr>
+<td>CNN Fine-tuned</td>
+<td>global feature(end to end)</td>
+<td>global feature(end to end)</td>
+<td>global feature(end to end)</td>
+<td>Low</td>
+<td>ANN methods</td>
+</tr>
+</tbody>
+</table>
+<h3 id="CNN-base"><a href="#CNN-base" class="headerlink" title="CNN base"></a>CNN base</h3><p>SIFT meets CNN这篇综述中把基于CNN的方法分为了3类，其中混合式方法指从图像中取特定区域输入到网络中提取特征，再对特征进行编码、索引，这类方法利用CNN提取局部特征，类似于基于SIFT的方法，由于图像块多次执行网络前向过程，效率偏低，在这里不展开。</p>
+<p>基于pretrained CNN模型的方法利用主流的CNN网络结构在大规模数据集上的预训练网络提取特征，再对特征进行编码、索引，这类方法主要研究重点在于特征的编码。其中提出MAC的论文<a href="https://arxiv.org/abs/1412.6574" target="_blank" rel="noopener">Visual instance retrieval with deep convolutional networks</a>是这类方法中的代表性工作。<a href="https://arxiv.org/abs/1612.06321" target="_blank" rel="noopener">DELF</a>方法是目前instance retrieval效果最好的模型，基于tensorflow实现，目前是tensorflow models中research的一个子工程。</p>
+<p>基于finetuned CNN的检索方法核心是面向任务数据集进行网络的微调训练，同时end-to-end的生成图像级的global descriptor。其中用于微调主流网络是基于验证的网络结构siamese networks。</p>
+<p>CVPR 2018的一篇文章<a href="https://arxiv.org/abs/1803.11285v1" target="_blank" rel="noopener">Revisiting Oxford and Paris: Large-Scale Image Retrieval Benchmarking</a>，详细对比了几种主流方法的性能，其中<a href="https://arxiv.org/abs/1612.06321" target="_blank" rel="noopener">DELF</a>方法结合Aggregated Selective Match Kernel和Spatial verification获得了压倒性的优势。在基于finetuned CNN的方法中，<a href="https://arxiv.org/abs/1412.6574" target="_blank" rel="noopener">MAC</a>、<a href="https://arxiv.org/abs/1511.05879v2" target="_blank" rel="noopener">R-MAC</a>、<a href="https://arxiv.org/abs/1711.02512v1" target="_blank" rel="noopener">GeM</a>提取的全局 descriptor有更好的性能。同时文章提出结合局部特征和全局特征的复合型方法可以获得更强的性能，同时开销也更大。</p>
+<h3 id="Indexing"><a href="#Indexing" class="headerlink" title="Indexing"></a>Indexing</h3><p>查找性能是高维向量的检索任务面临的一大难题。检索性能优化有两个方向，一是对高纬向量进行优化，例如降维、二进制特征、汉明空间、乘积量化（PQ）等，另一个是查找方式的优化，例如建立倒排索引、近似最近邻查找（ANN）。通常将两个方法结合使用。</p>
+<p>CNN base的方法提取的特征维度更加紧凑，对Indexing的优化要求低于SIFT特征。最近的文章中主流做法都是基于ANN，结合KD-tree和PQ</p>
+<h3 id="Datasets"><a href="#Datasets" class="headerlink" title="Datasets"></a>Datasets</h3><p>instance retrieval任务的主要数据集：</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>images</th>
+<th>queries</th>
+<th>content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Holidays</td>
+<td>1491</td>
+<td>500</td>
+<td>scene</td>
+</tr>
+<tr>
+<td>Ukbench</td>
+<td>10200</td>
+<td>10200</td>
+<td>common objects</td>
+</tr>
+<tr>
+<td>Paris6k</td>
+<td>6412</td>
+<td>55</td>
+<td>buildings</td>
+</tr>
+<tr>
+<td>Oxford5k</td>
+<td>5062</td>
+<td>55</td>
+<td>buildings</td>
+</tr>
+<tr>
+<td>Flickr100k</td>
+<td>99782</td>
+<td>-</td>
+<td>Flickr’s popular tags</td>
+</tr>
+<tr>
+<td>Google-Landmarks</td>
+<td>1060709</td>
+<td>12894</td>
+<td>landmarks</td>
+</tr>
+</tbody>
+</table>
+<p>其中Ukbench数据用N-S score作为评价指标，在Ukbench中每个查询有4个正确项，N-S score指每个查询前四的匹配中正确匹配的平均数量。其余几个数据集均用mAP作为评价指标。Google-Landmarks是论文<a href="https://arxiv.org/abs/1612.06321" target="_blank" rel="noopener">DELF</a>提出的数据集，地标数量12894、数据集图像数量1060709、查询图像数量111036，且带有GPS信息。</p>
+<h3 id="Roadmap"><a href="#Roadmap" class="headerlink" title="Roadmap"></a>Roadmap</h3><ul>
+<li>阅读相关论文，整理开源数据集和开源代码；</li>
+<li>搭建基于finetuned CNN方法的instance retrieval最小系统，试用<a href="https://github.com/facebookresearch/faiss" target="_blank" rel="noopener">faiss</a>；</li>
+<li>在最小系统上实验对比几种主流finetune CNN方法；</li>
+<li>梳理业务需求，收集、迭代业务数据，定义问题；</li>
+<li>完善流程，建立业务数据的baseline。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/02/27/blog_002_image_retrieval/" data-id="cjxod8tfa0001y4qhc0ir630i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CBIR/">CBIR</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-blog_001_hexo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/02/23/blog_001_hexo/" class="article-date">
+  <time datetime="2019-02-23T10:18:02.000Z" itemprop="datePublished">2019-02-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tools/">tools</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/23/blog_001_hexo/">Hexo静态博客方案</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="hello-world"><a href="#hello-world" class="headerlink" title="hello world"></a>hello world</h2><p>打开两年没更新的博客，简直不堪入目，索性推倒重来，先从如何搭静态博客开始。</p>
+<h2 id="Hexo-Github-Pages"><a href="#Hexo-Github-Pages" class="headerlink" title="Hexo + Github Pages"></a>Hexo + Github Pages</h2><p>Github提供了快速部署静态网页方法，<a href="https://pages.github.com/" target="_blank" rel="noopener">Github Pages</a>需创建一个Github Pages repository，与普通的repository唯一的区别是名字必须是 username.github.io。 <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>完美支持Markdown，渲染速度极快，依赖<a href="https://nodejs.org/en/" target="_blank" rel="noopener">Node.js</a>，可以一键部署，使用npm可以方便的管理插件。 但是静态博客存在一个问题，发布的内容是在本地渲染好的网页，如果更换电脑或者常用的电脑挂了就不能更新。我的解决方案是建一个新的repository，把本地hexo的整个working directory全部push到新的repository上，更新blog的操作：</p>
+<div id="flowchart-0" class="flow-chart"></div>
+
+<p>在一台新电脑上，安装hexo后，更新blog操作：</p>
+<p><div id="flowchart-1" class="flow-chart"></div><br>和新建一个hexo项目执行hexo init不同的是，在clone hexo的目录下，执行<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm <span class="keyword">install</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="Config"><a href="#Config" class="headerlink" title="Config"></a>Config</h2><p>技术文档经常要写数学公式，Hexo默认采用”hexo-renderer-marked”插件渲染<a href="https://www.mathjax.org/" target="_blank" rel="noopener">Mathjax</a>公式，一个常见问题是公式内换行符会被错误解析，解决方法是修改node_modules/marked/lib/marked.js中464行，去掉对双反斜杠的转义：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">escape: /^\\([<span class="string">\\`*&#123;&#125;\[\</span>](<span class="link"></span>)#+\-.!_&gt;])/,</span><br></pre></td></tr></table></figure>
+<p>改为</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">escape: /^\\([<span class="string">`*&#123;&#125;\[\</span>](<span class="link"></span>)#+\-.!_&gt;])/,</span><br></pre></td></tr></table></figure>
+<p>使用Mathjax公式需在Hexo的_config.yml中添加<code>mathjax: true</code>，同时在每个用公式的markdown文件的front-matter添加<code>mathjax: true</code>。</p>
+<p>为了与<a href="https://www.typora.io/" target="_blank" rel="noopener">Typora</a>的markdown公式、流程图匹配，流程图采用插件<a href="https://github.com/bubkoo/hexo-filter-flowchart" target="_blank" rel="noopener">hexo-filter-flowchart</a> ，与Typora中的流程图语法基本一致。<br>Theme选了一个极精简<a href="https://github.com/tufu9441/maupassant-hexo" target="_blank" rel="noopener">Maupassant</a>，依赖<code>hexo-renderer-pug</code>和<code>hexo-renderer-sass</code>两个插件。Maupassant这个单词的意思竟然是莫泊桑……</p>
+<p><script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js"></script><textarea id="flowchart-0-code" style="display: none">node1=>operation: write blog
+node2=>operation: hexo generate
+node3=>operation: push to hexo repository
+node4=>operation: hexo deploy
+
+node1->node2(right)->node3(right)->node4</textarea><textarea id="flowchart-0-options" style="display: none">{"scale":1,"line-width":2,"line-length":50,"text-margin":10,"font-size":12}</textarea><script>  var code = document.getElementById("flowchart-0-code").value;  var options = JSON.parse(decodeURIComponent(document.getElementById("flowchart-0-options").value));  var diagram = flowchart.parse(code);  diagram.drawSVG("flowchart-0", options);</script><textarea id="flowchart-1-code" style="display: none">node1=>operation: write blog
+node2=>operation: hexo generate
+node3=>operation: push to hexo repository
+node4=>operation: hexo deploy
+node0=>operation: clone hexo repository
+
+node0->node1->node2(right)->node3(right)->node4</textarea><textarea id="flowchart-1-options" style="display: none">{"scale":1,"line-width":2,"line-length":50,"text-margin":10,"font-size":12}</textarea><script>  var code = document.getElementById("flowchart-1-code").value;  var options = JSON.parse(decodeURIComponent(document.getElementById("flowchart-1-options").value));  var diagram = flowchart.parse(code);  diagram.drawSVG("flowchart-1", options);</script></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/02/23/blog_001_hexo/" data-id="cjxod8tf60000y4qh34c647j3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo-github/">hexo, github</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tools/">tools</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CBIR/">CBIR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo-github/">hexo, github</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CBIR/" style="font-size: 10px;">CBIR</a> <a href="/tags/hexo-github/" style="font-size: 10px;">hexo, github</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/02/27/blog_002_image_retrieval/">图像检索调研</a>
+          </li>
+        
+          <li>
+            <a href="/2019/02/23/blog_001_hexo/">Hexo静态博客方案</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Pan Yue<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
